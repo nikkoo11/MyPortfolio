@@ -516,6 +516,7 @@ textarea {
     color: #cbd5e1;
 }
 
+
 /* ==========================================================
    PROJECTS
    ========================================================== */
@@ -554,10 +555,59 @@ textarea {
     transform: scale(1.04);
 }
 
-.project-year {
+/* ==========================================================
+   PROJECT STATUS BADGE
+   ========================================================== */
+
+.project-image-wrap {
+    position: relative;
+}
+
+.project-status {
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
+    z-index: 2;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    border: 1px solid rgba(250, 204, 21, 0.35);
+    border-radius: 999px;
+    padding: 0.3rem 0.55rem;
+
+    color: #facc15;
+    background: rgba(30, 30, 30, 0.9);
+
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.status-dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    flex: 0 0 auto;
+
+    border-radius: 50%;
+    background: #facc15;
+
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.65);
+}
+
+
+/* Year badge — upper-left */
+.project-year {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    right: auto;
+    z-index: 2;
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 999px;
     padding: 0.25rem 0.45rem;
@@ -565,6 +615,55 @@ textarea {
     background: rgba(15, 23, 42, 0.8);
     font-size: 0.62rem;
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Status badge — upper-right */
+.project-status {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: calc(100% - 5rem);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    border-radius: 999px;
+    padding: 0.35rem 0.6rem;
+    color: #fbbf24;
+    background: rgba(15, 23, 42, 0.92);
+    font-size: 0.65rem;
+    font-weight: 700;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.status-dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+    animation: status-pulse 1.8s ease-in-out infinite;
+}
+
+.status-progress {
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.4);
+}
+
+@keyframes status-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
 }
 
 .project-content {
@@ -595,6 +694,7 @@ textarea {
     padding: 0.22rem 0.4rem;
     font-size: 0.58rem;
 }
+
 
 /* ==========================================================
    GALLERY
@@ -1291,6 +1391,9 @@ header nav .nav-link:focus-visible .nav-tooltip {
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
+    }
+     .status-dot {
+        animation: none;
     }
 }
 .loader {
