@@ -244,6 +244,8 @@ import certificateImage from './Assets/CertificateOJT.jpg'
 import lineFollowerImage from './Assets/Linefollower.jpg'
 import logicGatesImage from './Assets/LogicGates.jpg'
 import picBoardImage from './Assets/PicBoard.jpg'
+import smartBoardImage from './Assets/Smartboard.png'
+import labWebImage from './Assets/labweb.webp'
 import iteImage from './Assets/ite.jpg'
 import photoshootImage from './Assets/photoshoot.jpg'
 import microImage from './Assets/micro.jpg'
@@ -313,6 +315,24 @@ const projects = [
         tags: ['JavaScript', 'HTML', 'Digital logic'],
         image: logicGatesImage,
         imageAlt: 'Logic gates simulation project'
+    },
+    {
+        title: 'SmartBoard Retrofit',
+        category: 'IoT & computer vision',
+        year: '2026',
+        description: 'A low-cost retrofit that turns an existing classroom whiteboard into a smart board by capturing handwritten notes, converting them to PDF, and emailing them to students.',
+        tags: ['ESP32-CAM', 'Computer vision', 'IoT'],
+        image: smartBoardImage,
+        imageAlt: 'SmartBoard Retrofit project'
+    },
+    {
+        title: 'Laboratory Borrowing System',
+        category: 'Web development',
+        year: '2026',
+        description: 'A web-based system for managing the borrowing and returning of laboratory equipment.',
+        tags: ['Web development', 'Borrowing system'],
+        image: labWebImage,
+        imageAlt: 'Laboratory borrowing system website'
     }
 ]
 
@@ -425,4 +445,3 @@ onBeforeUnmount(() => {
     window.removeEventListener('keydown', handleKeydown)
 })
 </script>
-
