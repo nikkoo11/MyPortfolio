@@ -1,5 +1,14 @@
 <template>
     <div class="relative flex h-svh flex-col overflow-hidden">
+        <Transition name="loader-fade">
+            <div v-if="isLoading" class="loader" role="status" aria-live="polite">
+                <div class="loader-ring">JF</div>
+                <p class="loader-name">Jericho Fragata</p>
+                <div class="loader-bar"><span :style="{ width: progress + '%' }"></span></div>
+                <p class="loader-percent">{{ progress }}%</p>
+            </div>
+        </Transition>
+
         <header class="fixed inset-x-0 bottom-3 z-40 flex justify-center px-3 sm:bottom-4 sm:px-4">
             <nav aria-label="Main navigation" class="icon-dock flex max-w-full items-center justify-center gap-1 rounded-full border border-slate-800 bg-slate-900/90 p-1.5 shadow-[0_10px_30px_rgba(2,6,23,0.8)] backdrop-blur-xl sm:gap-2">
                 <a
@@ -9,7 +18,7 @@
                     @click.prevent="navigateToSection(item.href)"
                     :aria-label="item.name"
                     :aria-current="activeSection === item.href.slice(1) ? 'page' : undefined"
-                    class="nav-link relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-slate-300 transition-colors duration-200 hover:bg-slate-800 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 sm:h-12 sm:w-12"
+                    class="nav-link relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-slate-300 transition-colors duration-200 hover:bg-slate-800 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300 sm:h-12 sm:w-12"
                 >
                     <span v-if="item.separatorBefore" class="nav-separator" aria-hidden="true"></span>
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -62,17 +71,20 @@
                 <div class="section-inner home-layout">
                     <div class="home-copy">
                         <h1 id="home-title">Hi, I’m <span>Jericho Fragata.</span></h1>
-                        <p class="home-lead">Computer Engineering student focused on <strong>embedded systems</strong>, <strong>PCB design</strong>, and <strong>web development</strong>.</p>
+
                         <div class="hero-actions">
-                            <button class="button-primary" type="button" @click="navigateToSection('#projects')">View projects</button>
-                            <button class="button-secondary" type="button">Download resume</button>
+                            <a class="button-primary" href="/resume.pdf" download="Jericho-Fragata-Resume.pdf"><i class="fa-solid fa-download" aria-hidden="true"></i> Download CV</a>
+                            <button class="button-secondary" type="button" @click="navigateToSection('#contact')"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Contact me</button>
                         </div>
-                        <div class="home-socials">
-                            <a href="https://github.com/nikkoo11" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>
-                            <a href="mailto:jerichofragata811@gmail.com" aria-label="Gmail"><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>
-                            <a href="https://www.linkedin.com/in/jericho-fragata-1912b0442/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
+
+                        <div class="home-footer">
+                            <div class="home-socials">
+                                <a v-for="social in socialLinks" :key="social.name" :href="social.href" target="_blank" rel="noopener noreferrer" :aria-label="social.name"><i :class="social.icon" aria-hidden="true"></i></a>
+                            </div>
+                            <p class="home-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Isabela, Philippines</p>
                         </div>
                     </div>
+
                     <div class="home-portrait-wrap">
                         <img :src="avatarImage" alt="Portrait of Jericho Fragata" class="home-portrait">
                     </div>
@@ -153,7 +165,7 @@
                         <p>Projects, experiments, and milestones along the way.</p>
                     </div>
                     <div class="gallery-grid">
-                        <figure v-for="photo in gallery" :key="photo.title" class="gallery-card">
+                        <figure v-for="(photo, index) in gallery" :key="photo.image" class="gallery-card" tabindex="0" role="button" :aria-label="`View ${photo.title} full size`" @click="openPhoto(index)" @keydown.enter="openPhoto(index)" @keydown.space.prevent="openPhoto(index)">
                             <img :src="photo.image" :alt="photo.alt" loading="lazy">
                             <figcaption><span>{{ photo.title }}</span><small>{{ photo.category }}</small></figcaption>
                         </figure>
@@ -169,6 +181,7 @@
                     </div>
                     <div class="credentials-grid">
                         <article v-for="credential in credentials" :key="credential.title" class="credential-card">
+                            <span v-if="credential.status" class="credential-status">{{ credential.status }}</span>
                             <span class="credential-icon"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
                             <div class="credential-copy">
                                 <p class="credential-category">{{ credential.category }}</p>
@@ -205,21 +218,39 @@
                             <input id="contact-email" v-model.trim="form.email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
                             <label for="contact-message">Message</label>
                             <textarea id="contact-message" v-model.trim="form.message" name="message" rows="4" placeholder="Tell me a little about what you have in mind..." required></textarea>
+                            <button class="button-primary contact-submit" type="submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send message</button>
                         </form>
                     </div>
                 </div>
             </section>
         </main>
+
+        <div v-if="activePhoto" class="lightbox" role="dialog" aria-modal="true" :aria-label="activePhoto.title" @click.self="closePhoto">
+            <button class="lightbox-close" type="button" aria-label="Close photo" @click="closePhoto"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            <button class="lightbox-nav lightbox-prev" type="button" aria-label="Previous photo" @click="showPhoto(-1)"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+            <figure class="lightbox-figure">
+                <img :src="activePhoto.image" :alt="activePhoto.alt">
+                <figcaption><span>{{ activePhoto.title }}</span><small>{{ photoIndex + 1 }} / {{ gallery.length }}</small></figcaption>
+            </figure>
+            <button class="lightbox-nav lightbox-next" type="button" aria-label="Next photo" @click="showPhoto(1)"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-import avatarImage from './Assets/avatar.jpg'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import avatarImage from './Assets/ojtpic.jpg'
 import certificateImage from './Assets/CertificateOJT.jpg'
 import lineFollowerImage from './Assets/Linefollower.jpg'
 import logicGatesImage from './Assets/LogicGates.jpg'
 import picBoardImage from './Assets/PicBoard.jpg'
+import iteImage from './Assets/ite.jpg'
+import photoshootImage from './Assets/photoshoot.jpg'
+import microImage from './Assets/micro.jpg'
+import abanaGroupImage from './Assets/grouppicABANA.jpg'
+import abanaGroup2Image from './Assets/grouppicABANA1.jpg'
+import boysGroupImage from './Assets/groupicwithdaboys.jpg'
+import boysGroup2Image from './Assets/groupicwithdaboys1.jpg'
 
 const navItems = [
     { name: 'Home', href: '#home', icon: 'home' },
@@ -232,6 +263,9 @@ const navItems = [
 ]
 
 const activeSection = ref('home')
+const isLoading = ref(true)
+const progress = ref(0)
+let progressTimer = null
 const email = 'jerichofragata811@gmail.com'
 const phone = '+63 967 258 2102'
 const form = reactive({ name: '', email: '', message: '' })
@@ -286,15 +320,46 @@ const gallery = [
     { title: 'Line Follower Robot', category: 'Robotics', image: lineFollowerImage, alt: 'Line follower robot project' },
     { title: 'PIC Board Design', category: 'Electronics', image: picBoardImage, alt: 'PIC microcontroller board' },
     { title: 'Logic Gates', category: 'Digital logic', image: logicGatesImage, alt: 'Logic gates simulation' },
+    { title: 'Microcontroller', category: 'Electronics', image: microImage, alt: 'Microcontroller project' },
     { title: 'OJT Certificate', category: 'Milestone', image: certificateImage, alt: 'On-the-job training certificate' },
+    { title: 'ITE SUMMIT', category: 'School', image: iteImage, alt: 'ITE photo' },
+    { title: 'Photoshoot', category: 'About me', image: photoshootImage, alt: 'Photoshoot of Jericho Fragata' },
+    { title: 'Abana Team', category: 'OJT', image: abanaGroupImage, alt: 'Group photo at Abana' },
+    { title: 'Abana Team 2', category: 'OJT', image: abanaGroup2Image, alt: 'Second group photo at Abana' },
+    { title: 'With the Friends', category: 'Friends', image: boysGroupImage, alt: 'Group photo with friends' },
+    { title: 'With the Friends 2', category: 'Friends', image: boysGroup2Image, alt: 'Second group photo with friends' },
     { title: 'A portrait', category: 'About me', image: avatarImage, alt: 'Portrait of Jericho Fragata' }
 ]
+
+const photoIndex = ref(null)
+const activePhoto = computed(() => (photoIndex.value === null ? null : gallery[photoIndex.value]))
+
+const openPhoto = (index) => {
+    photoIndex.value = index
+}
+
+const closePhoto = () => {
+    photoIndex.value = null
+}
+
+const showPhoto = (step) => {
+    if (photoIndex.value === null) return
+    photoIndex.value = (photoIndex.value + step + gallery.length) % gallery.length
+}
+
+const handleKeydown = (event) => {
+    if (photoIndex.value === null) return
+    if (event.key === 'Escape') closePhoto()
+    if (event.key === 'ArrowLeft') showPhoto(-1)
+    if (event.key === 'ArrowRight') showPhoto(1)
+}
 
 const credentials = [
     {
         category: 'TESDA / National Cert',
         title: 'Computer Systems Servicing (CSS NC II)',
-        description: 'Certification alignment covering computer hardware assembly, OS installation, network configuration, and diagnostic maintenance.'
+        status: 'In progress',
+        description: 'Working toward certification in computer hardware assembly, OS installation, network configuration, and diagnostic maintenance.'
     },
     {
         category: 'Industry Internship',
@@ -305,17 +370,12 @@ const credentials = [
         category: 'CpE Workshop',
         title: 'PCB Fabrication & Circuit Design',
         description: 'Practical certification in schematic layout, copper board etching, precision soldering, and power regulator circuit testing.'
-    },
-    {
-        category: 'Web Development',
-        title: 'Full-Stack Web Architecture',
-        description: 'Training in Vue 3 single page applications, Django REST frameworks, and PostgreSQL relational database design.'
     }
 ]
 
 const socialLinks = [
     { name: 'GitHub', href: 'https://github.com/nikkoo11', icon: 'fa-brands fa-github' },
-    { name: 'LinkedIn', href: 'https://www.linkedin.com/in/jericho-fragata-1912b0442/', icon: 'fa-brands fa-linkedin-in' },
+    { name: 'LinkedIn', href: 'https://www.linkedin.com/in/jerichofragata/', icon: 'fa-brands fa-linkedin-in' },
     { name: 'Facebook', href: 'https://www.facebook.com/share/1DqL5MsQYu/', icon: 'fa-brands fa-facebook-f' }
 ]
 
@@ -342,9 +402,27 @@ const sendMessage = () => {
 onMounted(() => {
     syncSectionFromLocation()
     window.addEventListener('popstate', syncSectionFromLocation)
+    window.addEventListener('keydown', handleKeydown)
+
+    let pageReady = document.readyState === 'complete'
+    if (!pageReady) {
+        window.addEventListener('load', () => { pageReady = true }, { once: true })
+    }
+
+    progressTimer = setInterval(() => {
+        const limit = pageReady ? 100 : 90
+        if (progress.value < limit) progress.value += 1
+        if (progress.value >= 100) {
+            clearInterval(progressTimer)
+            setTimeout(() => { isLoading.value = false }, 350)
+        }
+    }, 18)
 })
 
 onBeforeUnmount(() => {
+    clearInterval(progressTimer)
     window.removeEventListener('popstate', syncSectionFromLocation)
+    window.removeEventListener('keydown', handleKeydown)
 })
 </script>
+
