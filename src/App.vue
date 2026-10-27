@@ -703,11 +703,6 @@ const credentials = [
         category: 'Industry Internship',
         title: 'Hardware Servicing & IT Internship',
         description: 'Issued by Abana Computer Services & Merchandise for diagnostic hardware repairs, OS deployment, and network cabling operations.'
-    },
-    {
-        category: 'CpE Workshop',
-        title: 'PCB Fabrication & Circuit Design',
-        description: 'Practical certification in schematic layout, copper board etching, precision soldering, and power regulator circuit testing.'
     }
 ]
 
